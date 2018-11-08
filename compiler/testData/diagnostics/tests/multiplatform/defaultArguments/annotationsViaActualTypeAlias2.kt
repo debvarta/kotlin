@@ -10,6 +10,7 @@ expect annotation class Anno(
     val d: Double = 3.14,
     val f: Float = -2.72f,
     val i: Int = 42424242,
+    val i2: Int = 53535353,
     val j: Long = 239239239239239L,
     val j2: Long = 239239L,
     val s: Short = 42.toShort(),
@@ -52,6 +53,7 @@ public @interface Jnno {
     double d() default 3.14;
     float f() default -2.72f;
     int i() default 42424242;
+    int i2() default 21212121 + 32323232;
     long j() default 239239239239239L;
     long j2() default 239239;
     short s() default 42;
@@ -64,7 +66,7 @@ public @interface Jnno {
     long[] ja() default {239239239239L, 239239};
     short[] sa() default {-43};
     boolean[] za() default {false, true};
-    String str() default "fizz";
+    String str() default "fi" + "zz";
     Class<?> k() default Number.class;
     E e() default E.E1;
     // TODO: A a() default @A("1");

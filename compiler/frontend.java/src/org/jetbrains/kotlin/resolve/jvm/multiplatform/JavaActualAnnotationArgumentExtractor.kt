@@ -9,6 +9,7 @@ import com.intellij.psi.PsiAnnotationMethod
 import com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns
 import org.jetbrains.kotlin.builtins.jvm.JavaToKotlinClassMap
+import org.jetbrains.kotlin.load.java.components.JavaPropertyInitializerEvaluatorImpl
 import org.jetbrains.kotlin.load.java.structure.*
 import org.jetbrains.kotlin.load.java.structure.impl.JavaAnnotationArgumentImpl
 import org.jetbrains.kotlin.name.ClassId
@@ -32,8 +33,8 @@ class JavaActualAnnotationArgumentExtractor : ExpectedActualDeclarationChecker.A
     // KClassValue/AnnotationValue are untied from descriptors/types, because here we do not have an instance of LazyJavaResolverContext.
     private fun JavaAnnotationArgument.convert(expectedType: KotlinType): ConstantValue<*>? {
         return when (this) {
-            is JavaLiteralAnnotationArgument -> {
-                ConstantValueFactory.createConstantValue(convertJavaLiteralValue(value, expectedType))
+            is JavaLiteralAnnotationArgument -> value?.let {
+                JavaPropertyInitializerEvaluatorImpl.convertLiteralValue(it, expectedType)
             }
             is JavaEnumValueAnnotationArgument -> {
                 enumClassId?.let { enumClassId ->
@@ -47,7 +48,7 @@ class JavaActualAnnotationArgumentExtractor : ExpectedActualDeclarationChecker.A
                 ConstantValueFactory.createArrayValue(getElements().mapNotNull { it.convert(elementType) }, expectedType)
             }
             is JavaAnnotationAsAnnotationArgument -> {
-                // TODO: support annotations as annotation arguments
+                // TODO: support annotations as annotation arguments (KT-28077)
                 null
             }
             is JavaClassObjectAnnotationArgument -> {
@@ -55,22 +56,6 @@ class JavaActualAnnotationArgumentExtractor : ExpectedActualDeclarationChecker.A
             }
             else -> null
         }
-    }
-
-    private fun convertJavaLiteralValue(value: Any?, expectedType: KotlinType): Any? = when (value) {
-        // For Java code inside an @interface:
-        //
-        //     byte b() default 1;
-        //
-        // PSI constant expression evaluator returns an instance of Integer equal to 1, which we need to convert to the Byte instance
-        // in order to create the correct ConstantValue. Similarly for short and long.
-        is Int -> when {
-            KotlinBuiltIns.isByte(expectedType) -> value.toByte()
-            KotlinBuiltIns.isShort(expectedType) -> value.toShort()
-            KotlinBuiltIns.isLong(expectedType) -> value.toLong()
-            else -> value
-        }
-        else -> value
     }
 
     // See FileBasedKotlinClass.resolveKotlinNameByType
