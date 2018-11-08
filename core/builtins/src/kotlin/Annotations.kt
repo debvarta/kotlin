@@ -23,6 +23,17 @@ import kotlin.annotation.AnnotationTarget.*
 /**
  * Marks the annotated declaration as deprecated.
  *
+ * A deprecated API element is not recommended to use, typically because it's being phased out or a better alternative exists.
+ *
+ * To help removing deprecated API gradually, the property [level] could be used.
+ * Usually a gradual phase-out goes through the "warning" -> "error" -> "hidden" or "removed" stages:
+ * - First and by default, [DeprecationLevel.WARNING] is used to notify API consumers, but do not break their compilation or runtime usages.
+ * - Then, some time later the deprecation level is raised to [DeprecationLevel.ERROR], so that no new Kotlin code can be compiled
+ *   using the deprecated API.
+ * - Finally, the API is either removed entirely, or hidden ([DeprecationLevel.HIDDEN]) from code,
+ * so its usages look like unresolved references, while the API remains in the compiled code
+ * preserving binary compatibility with a previously compiled code.
+ *
  * @property message The message explaining the deprecation and recommending an alternative API to use.
  * @property replaceWith If present, specifies a code fragment which should be used as a replacement for
  *  the deprecated API usage.
