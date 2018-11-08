@@ -28,7 +28,7 @@ expect annotation class Anno(
     val e: E = E.E1,
     // TODO: val a: A = A("1"),
     val stra: Array<String> = ["bu", "zz"],
-    val ka: Array<KClass<*>> = [Double::class, String::class, LongArray::class, Array<Array<Array<Int>>>::class],
+    val ka: Array<KClass<*>> = [Double::class, String::class, LongArray::class, Array<Array<Array<Int>>>::class, Unit::class],
     val ea: Array<E> = [E.E2, E.E3]
     // TODO: val aa: Array<A> = [A("2"), A("3")]
 )
@@ -71,7 +71,7 @@ public @interface Jnno {
     E e() default E.E1;
     // TODO: A a() default @A("1");
     String[] stra() default {"bu", "zz"};
-    Class<?>[] ka() default {double.class, String.class, long[].class, Integer[][][].class};
+    Class<?>[] ka() default {double.class, String.class, long[].class, Integer[][][].class, void.class};
     E[] ea() default {E.E2, E.E3};
     // TODO: A[] aa() default {@A("2"), @A("3")};
 }

@@ -68,7 +68,9 @@ class JavaActualAnnotationArgumentExtractor : ExpectedActualDeclarationChecker.A
         }
         return when (type) {
             is JavaPrimitiveType -> {
-                val primitiveType = type.type ?: return null /* TODO: support void.class */
+                val primitiveType = type.type
+                // void.class is not representable in Kotlin, we approximate it by Unit::class
+                    ?: return KClassValue(ClassId.topLevel(KotlinBuiltIns.FQ_NAMES.unit.toSafe()), 0)
                 if (arrayDimensions > 0) {
                     KClassValue(ClassId.topLevel(primitiveType.arrayTypeFqName), arrayDimensions - 1)
                 } else {
