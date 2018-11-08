@@ -5,14 +5,13 @@
 
 package kotlin.reflect.jvm.internal.calls
 
-import org.jetbrains.kotlin.descriptors.CallableMemberDescriptor
-import org.jetbrains.kotlin.descriptors.ClassDescriptor
-import org.jetbrains.kotlin.descriptors.ConstructorDescriptor
-import org.jetbrains.kotlin.descriptors.ValueParameterDescriptor
+import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.load.java.JvmAbi
 import org.jetbrains.kotlin.resolve.descriptorUtil.classId
+import org.jetbrains.kotlin.resolve.isGetterOfUnderlyingPropertyOfInlineClass
 import org.jetbrains.kotlin.resolve.isInlineClass
 import org.jetbrains.kotlin.resolve.isInlineClassType
+import org.jetbrains.kotlin.resolve.isUnderlyingPropertyOfInlineClass
 import org.jetbrains.kotlin.types.KotlinType
 import java.lang.reflect.Member
 import java.lang.reflect.Method
@@ -45,6 +44,15 @@ internal class InlineClassAwareCaller<out M : Member>(
     }
 
     private val data: BoxUnboxData by lazy(LazyThreadSafetyMode.PUBLICATION) {
+        val box = descriptor.returnType!!.toInlineClass()?.getBoxMethod()
+
+        if (descriptor.isGetterOfUnderlyingPropertyOfInlineClass()) {
+            // Getter of the underlying val of an inline class is always called on a boxed receiver,
+            // no argument boxing/unboxing is required.
+            // However, its result might require boxing if it is an inline class type.
+            return@lazy BoxUnboxData(IntRange.EMPTY, emptyArray(), box)
+        }
+
         val shift = when {
             caller is CallerImpl.Method.BoundStatic -> {
                 // Bound reference to a static method is only possible for a top level extension function/property,
@@ -107,8 +115,6 @@ internal class InlineClassAwareCaller<out M : Member>(
             } else null
         }
 
-        val box = descriptor.returnType!!.toInlineClass()?.getBoxMethod()
-
         BoxUnboxData(argumentRange, unbox, box)
     }
 
@@ -143,9 +149,9 @@ internal fun <M : Member> CallerImpl<M>.createInlineClassAwareCallerIfNeeded(
     isDefault: Boolean = false
 ): Caller<M> {
     val needsInlineAwareCaller =
-        descriptor.valueParameters.any { it.type.isInlineClassType() } ||
+        (descriptor.valueParameters.any { it.type.isInlineClassType() } ||
                 descriptor.returnType?.isInlineClassType() == true ||
-                this !is BoundCaller && descriptor.hasInlineClassReceiver()
+                this !is BoundCaller && descriptor.hasInlineClassReceiver())
 
     return if (needsInlineAwareCaller) InlineClassAwareCaller(descriptor, this, isDefault) else this
 }
@@ -183,6 +189,8 @@ private val CallableMemberDescriptor.expectedReceiverType: KotlinType?
     }
 
 internal fun Any?.coerceToExpectedReceiverType(descriptor: CallableMemberDescriptor): Any? {
+    if (descriptor is PropertyDescriptor && descriptor.isUnderlyingPropertyOfInlineClass()) return this
+
     val expectedReceiverType = descriptor.expectedReceiverType
     val unboxMethod = expectedReceiverType?.toInlineClass()?.getUnboxMethod(descriptor) ?: return this
 

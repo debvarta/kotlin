@@ -19343,6 +19343,11 @@ public class IrBlackBoxCodegenTestGenerated extends AbstractIrBlackBoxCodegenTes
                     runTest("compiler/testData/codegen/box/reflection/call/inlineClasses/overridingVarOfInlineClass.kt");
                 }
 
+                @TestMetadata("primaryValOfInlineClass.kt")
+                public void testPrimaryValOfInlineClass() throws Exception {
+                    runTest("compiler/testData/codegen/box/reflection/call/inlineClasses/primaryValOfInlineClass.kt");
+                }
+
                 @TestMetadata("properties.kt")
                 public void testProperties() throws Exception {
                     runTest("compiler/testData/codegen/box/reflection/call/inlineClasses/properties.kt");
