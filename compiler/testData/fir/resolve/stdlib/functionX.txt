@@ -1,6 +1,6 @@
 FILE: functionX.kt
-    public? final? property x(val): R|kotlin/jvm/functions/Function0<kotlin/Int>| = STUB
-        public? get(): R|kotlin/jvm/functions/Function0<kotlin/Int>|
+    public? final? property x(val): R|kotlin/Function0<kotlin/Int>| = STUB
+        public? get(): R|kotlin/Function0<kotlin/Int>|
     public? final? property y(val): R|kotlin/Function1<kotlin/String, kotlin/String>| = STUB
         public? get(): R|kotlin/Function1<kotlin/String, kotlin/String>|
     public? final class MyFunction : R|kotlin/Function2<kotlin/Int, kotlin/String, kotlin/Unit>| {

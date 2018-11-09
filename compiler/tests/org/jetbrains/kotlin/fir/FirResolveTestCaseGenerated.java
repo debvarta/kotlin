@@ -31,14 +31,12 @@ public class FirResolveTestCaseGenerated extends AbstractFirResolveTestCase {
 
     @TestMetadata("companion.kt")
     public void testCompanion() throws Exception {
-        String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/fir/resolve/companion.kt");
-        doTest(fileName);
+        runTest("compiler/testData/fir/resolve/companion.kt");
     }
 
     @TestMetadata("derivedClass.kt")
     public void testDerivedClass() throws Exception {
-        String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/fir/resolve/derivedClass.kt");
-        doTest(fileName);
+        runTest("compiler/testData/fir/resolve/derivedClass.kt");
     }
 
     @TestMetadata("enum.kt")
@@ -53,14 +51,12 @@ public class FirResolveTestCaseGenerated extends AbstractFirResolveTestCase {
 
     @TestMetadata("ft.kt")
     public void testFt() throws Exception {
-        String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/fir/resolve/ft.kt");
-        doTest(fileName);
+        runTest("compiler/testData/fir/resolve/ft.kt");
     }
 
     @TestMetadata("functionTypes.kt")
     public void testFunctionTypes() throws Exception {
-        String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/fir/resolve/functionTypes.kt");
-        doTest(fileName);
+        runTest("compiler/testData/fir/resolve/functionTypes.kt");
     }
 
     @TestMetadata("genericFunctions.kt")
@@ -70,8 +66,7 @@ public class FirResolveTestCaseGenerated extends AbstractFirResolveTestCase {
 
     @TestMetadata("nestedClass.kt")
     public void testNestedClass() throws Exception {
-        String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/fir/resolve/nestedClass.kt");
-        doTest(fileName);
+        runTest("compiler/testData/fir/resolve/nestedClass.kt");
     }
 
     @TestMetadata("NestedOfAliasedType.kt")
@@ -141,8 +136,7 @@ public class FirResolveTestCaseGenerated extends AbstractFirResolveTestCase {
 
         @TestMetadata("Annotations.kt")
         public void testAnnotations() throws Exception {
-            String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/fir/resolve/multifile/Annotations.kt");
-            doTest(fileName);
+            runTest("compiler/testData/fir/resolve/multifile/Annotations.kt");
         }
 
         @TestMetadata("NestedSuperType.kt")
@@ -183,6 +177,24 @@ public class FirResolveTestCaseGenerated extends AbstractFirResolveTestCase {
         @TestMetadata("TypeAliasExpansion.kt")
         public void testTypeAliasExpansion() throws Exception {
             runTest("compiler/testData/fir/resolve/multifile/TypeAliasExpansion.kt");
+        }
+    }
+
+    @TestMetadata("compiler/testData/fir/resolve/stdlib")
+    @TestDataPath("$PROJECT_ROOT")
+    @RunWith(JUnit3RunnerWithInners.class)
+    public static class Stdlib extends AbstractFirResolveTestCase {
+        private void runTest(String testDataFilePath) throws Exception {
+            KotlinTestUtils.runTest(this::doTest, TargetBackend.ANY, testDataFilePath);
+        }
+
+        public void testAllFilesPresentInStdlib() throws Exception {
+            KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/fir/resolve/stdlib"), Pattern.compile("^([^.]+)\\.kt$"), TargetBackend.ANY, true);
+        }
+
+        @TestMetadata("functionX.kt")
+        public void testFunctionX() throws Exception {
+            runTest("compiler/testData/fir/resolve/stdlib/functionX.kt");
         }
     }
 }
