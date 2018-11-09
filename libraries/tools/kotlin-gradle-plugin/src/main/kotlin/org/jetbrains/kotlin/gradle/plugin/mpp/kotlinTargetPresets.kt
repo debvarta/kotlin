@@ -16,7 +16,6 @@ import org.gradle.internal.reflect.Instantiator
 import org.jetbrains.kotlin.compilerRunner.KotlinNativeProjectProperty
 import org.jetbrains.kotlin.compilerRunner.hasProperty
 import org.jetbrains.kotlin.compilerRunner.konanHome
-import org.jetbrains.kotlin.compilerRunner.setProperty
 import org.jetbrains.kotlin.gradle.dsl.KotlinCompile
 import org.jetbrains.kotlin.gradle.dsl.kotlinExtension
 import org.jetbrains.kotlin.gradle.plugin.*
