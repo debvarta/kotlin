@@ -16,6 +16,7 @@ import org.gradle.internal.reflect.Instantiator
 import org.jetbrains.kotlin.compilerRunner.KotlinNativeProjectProperty
 import org.jetbrains.kotlin.compilerRunner.hasProperty
 import org.jetbrains.kotlin.compilerRunner.konanHome
+import org.jetbrains.kotlin.compilerRunner.setProperty
 import org.jetbrains.kotlin.gradle.dsl.KotlinCompile
 import org.jetbrains.kotlin.gradle.dsl.kotlinExtension
 import org.jetbrains.kotlin.gradle.plugin.*
@@ -245,7 +246,17 @@ class KotlinNativeTargetPreset(
     private val kotlinPluginVersion: String
 ) : KotlinTargetPreset<KotlinNativeTarget> {
 
+    init {
+        // This is required to obtain Kotlin/Native home in CLion plugin:
+        setupNativeHomePrivateProperty()
+    }
+
     override fun getName(): String = name
+
+    private fun setupNativeHomePrivateProperty() = with(project) {
+        if (!hasProperty(KOTLIN_NATIVE_HOME_PRIVATE_PROPERTY))
+            extensions.extraProperties.set(KOTLIN_NATIVE_HOME_PRIVATE_PROPERTY, konanHome)
+    }
 
     private fun setupNativeCompiler() = with(project) {
         if (!hasProperty(KotlinNativeProjectProperty.KONAN_HOME_OVERRIDE)) {
@@ -344,6 +355,7 @@ class KotlinNativeTargetPreset(
 
     companion object {
         private const val KOTLIN_NATIVE_FAKE_REPO_NAME = "Kotlin/Native default libraries"
+        private const val KOTLIN_NATIVE_HOME_PRIVATE_PROPERTY = "konanHome"
     }
 }
 
