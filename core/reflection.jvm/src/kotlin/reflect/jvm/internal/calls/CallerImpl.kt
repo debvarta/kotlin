@@ -145,6 +145,27 @@ internal sealed class CallerImpl<out M : Member>(
                 return callMethod(null, args)
             }
         }
+
+        class UnboxInlineClass(
+            unboxMethod: ReflectMethod,
+            private val boxResultMethod: ReflectMethod?
+        ) : Method(unboxMethod, requiresInstance = true) {
+            override fun call(args: Array<*>): Any? {
+                val carrierTypeValue = callMethod(args[0], args.dropFirst())
+                return boxResultMethod?.invoke(null, carrierTypeValue) ?: carrierTypeValue
+            }
+        }
+
+        class BoundUnboxInlineClass(
+            unboxMethod: ReflectMethod,
+            private val boxResultMethod: ReflectMethod?,
+            private val boundReceiver: Any?
+        ) : Method(unboxMethod, requiresInstance = false), BoundCaller {
+            override fun call(args: Array<*>): Any? {
+                val carrierTypeValue = callMethod(boundReceiver, args)
+                return boxResultMethod?.invoke(null, carrierTypeValue) ?: carrierTypeValue
+            }
+        }
     }
 
     sealed class FieldGetter(

@@ -11,6 +11,7 @@ import org.jetbrains.kotlin.load.java.JvmAbi
 import org.jetbrains.kotlin.metadata.jvm.deserialization.JvmProtoBufUtil
 import org.jetbrains.kotlin.resolve.DescriptorFactory
 import org.jetbrains.kotlin.resolve.DescriptorUtils
+import org.jetbrains.kotlin.resolve.isUnderlyingPropertyOfInlineClass
 import org.jetbrains.kotlin.serialization.deserialization.descriptors.DeserializedPropertyDescriptor
 import org.jetbrains.kotlin.types.TypeUtils
 import java.lang.reflect.Field
@@ -226,9 +227,18 @@ private fun KPropertyImpl.Accessor<*, *>.computeCallerForAccessor(isGetter: Bool
             }
 
             when {
-                accessor == null -> computeFieldCaller(
-                    property.javaField ?: throw KotlinReflectionInternalError("No accessors or field is found for property $property")
-                )
+                property.descriptor.isUnderlyingPropertyOfInlineClass() -> {
+                    val unboxMethod = property.descriptor.containingDeclaration.toInlineClass()?.getUnboxMethod(property.descriptor)
+                        ?: throw KotlinReflectionInternalError("Underlying property of inline class $property should have a field")
+                    val boxResultMethod = property.descriptor.type.toInlineClass()?.getBoxMethod(property.descriptor)
+                    if (isBound) CallerImpl.Method.BoundUnboxInlineClass(unboxMethod, boxResultMethod, boundReceiver)
+                    else CallerImpl.Method.UnboxInlineClass(unboxMethod, boxResultMethod)
+                }
+                accessor == null -> {
+                    val javaField = property.javaField
+                        ?: throw KotlinReflectionInternalError("No accessors or field is found for property $property")
+                    computeFieldCaller(javaField)
+                }
                 !Modifier.isStatic(accessor.modifiers) ->
                     if (isBound) CallerImpl.Method.BoundInstance(accessor, boundReceiver)
                     else CallerImpl.Method.Instance(accessor)
